@@ -1,7 +1,7 @@
 :root {
-  --bg-progress: #f5d565;
-  --bg-complete: #a0ecb1;
-  --bg-incomplete: #f7d4d3;
+  --bg-in-progress: #f5d565;
+  --bg-completed: #a0ecb1;
+  --bg-wont-do: #f7d4d3;
   --bg-to-do: #e3e8ef;
   --bg-add-task: #f5e8d5;
   --card-radius: 12px;
@@ -89,9 +89,9 @@ body {
   transform: translateY(-5px);
 }
 
-.task-card.progress { background-color: var(--bg-progress); }
-.task-card.complete { background-color: var(--bg-complete); }
-.task-card.incomplete { background-color: var(--bg-incomplete); }
+.task-card.in-progress { background-color: var(--bg-in-progress); }
+.task-card.completed { background-color: var(--bg-completed); }
+.task-card.wont-do { background-color: var(--bg-wont-do); }
 .task-card.to-do { background-color: var(--bg-to-do); }
 .task-card.add-task { background-color: var(--bg-add-task); }
 
@@ -117,15 +117,15 @@ body {
   padding: 0.5rem;
 }
 
-.status-progress {
+.status-in-progress {
   background-color: #e9a23b;
 }
 
-.status-complete {
+.status-completed {
   background-color: #32d657;
 }
 
-.status-incomplete {
+.status-wont-do {
   background-color: #dd524c;
 }
 

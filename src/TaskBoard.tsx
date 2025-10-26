@@ -1,9 +1,9 @@
 import { JSX } from "react";
 import Logo from "../resources/Logo.svg";
 import EditIcon from "../resources/Edit_duotone.svg";
-import CardProgressIcon from "../resources/Time_atack_duotone.svg";
-import CardCompleteIcon from "../resources/Done_round_duotone.svg";
-import CardIncompleteIcon from "../resources/close_ring_duotone.svg";
+import TaskStatusInProgressIcon from "../resources/Time_atack_duotone.svg";
+import TaskStatusCompletedIcon from "../resources/Done_round_duotone.svg";
+import TaskStatusWontDoIcon from "../resources/close_ring_duotone.svg";
 
 declare module '*.svg' {
   const content: string;
@@ -34,29 +34,29 @@ export const TaskBoard = (): JSX.Element => {
       <div>In Progress</div>
       <div>Completed</div>
       <div>Won’t do</div> */}
-        <div className="task-card progress" onClick={() => { alert("Click Task in Progress") }}>
+        <div className="task-card in-progress" onClick={() => { alert("Click Task in Progress") }}>
           <div className="task-header">
             <span className="task-icon">⏰️</span>
             <span className="task-name">Task in Progress</span>
-            <img src={CardProgressIcon} alt="Task-Status-Progress-Icon" className="task-status status-progress" />
+            <img src={TaskStatusInProgressIcon} alt="Task-Status-In-Progress-Icon" className="task-status status-in-progress" />
           </div>
           <div className="task-content">
           </div>
         </div>
-        <div className="task-card complete" onClick={() => { alert("Click Task in Complete") }}>
+        <div className="task-card completed" onClick={() => { alert("Click Task Completed") }}>
           <div className="task-header">
             <span className="task-icon">🏋️‍♂️</span>
             <span className="task-name">Task Completed</span>
-            <img src={CardCompleteIcon} alt="Task-Status-Complete-Icon" className="task-status status-complete" />
+            <img src={TaskStatusCompletedIcon} alt="Task-Status-Completed-Icon" className="task-status status-completed" />
           </div>
           <div className="task-content">
           </div>
         </div>
-        <div className="task-card incomplete" onClick={() => { alert("Click Task in Incomplete") }}>
+        <div className="task-card wont-do" onClick={() => { alert("Click Task Won’t Do") }}>
           <div className="task-header">
             <span className="task-icon">☕</span>
             <span className="task-name">Task Won’t Do</span>
-            <img src={CardIncompleteIcon} alt="Task-Status-Incomplete-Icon" className="task-status status-incomplete" />
+            <img src={TaskStatusWontDoIcon} alt="Task-Status-Won't-Do-Icon" className="task-status status-wont-do" />
           </div>
           <div className="task-content">
           </div>
