@@ -1,7 +1,7 @@
 :root {
-  --bg-in-progress: #f5d565;
-  --bg-completed: #a0ecb1;
-  --bg-wont-do: #f7d4d3;
+  --bg-progress: #f5d565;
+  --bg-complete: #a0ecb1;
+  --bg-incomplete: #f7d4d3;
   --bg-to-do: #e3e8ef;
   --bg-add-task: #f5e8d5;
   --card-radius: 12px;
@@ -26,15 +26,17 @@ body {
   gap: 0.25rem;
   padding: 1rem;
   border-radius: 12px;
-  background-color: #fff;
+  /* background-color: #fff; */ /* for Debug*/
   max-width: 600px;
   margin: auto;
 }
 
-.board-app-icon {
+.board-logo {
   justify-content: flex-start;
-  font-size: 1.5rem;
-  color: #333;
+  margin: 0.5rem;
+  margin-top: 0.25rem;
+  /* font-size: 1.5rem; */
+  /* color: #333; */
 }
 
 .board-text {
@@ -51,12 +53,11 @@ body {
 .board-edit-icon {
   align-self: flex-end;
   padding-bottom: 0.5rem;
-  font-size: 1.5rem;
-  color: #333;
 }
 
 .board-description {
   font-size: 1rem;
+  font-weight: bold;
   color: #666;
 }
 
@@ -88,9 +89,9 @@ body {
   transform: translateY(-5px);
 }
 
-.task-card.in-progress { background-color: var(--bg-in-progress); }
-.task-card.completed { background-color: var(--bg-completed); }
-.task-card.wont-do { background-color: var(--bg-wont-do); }
+.task-card.progress { background-color: var(--bg-progress); }
+.task-card.complete { background-color: var(--bg-complete); }
+.task-card.incomplete { background-color: var(--bg-incomplete); }
 .task-card.to-do { background-color: var(--bg-to-do); }
 .task-card.add-task { background-color: var(--bg-add-task); }
 
@@ -99,31 +100,48 @@ body {
   align-items: center;
   gap: 0.5rem;
   font-weight: bold;
-  margin-bottom: 0.5rem;
   justify-content: flex-start;
 }
 
 .task-icon {
-  font-size: 1.5rem;
-  color: #333;
+  align-self: flex-start;
+  background-color: white;
+  border-radius: 8px;
+  padding: 0.3rem;
+  font-size: 1.2rem;
 }
 
 .task-status {
   margin-left: auto;
-  font-size: 1.2rem;
+  border-radius: 8px;
+  padding: 0.5rem;
+}
+
+.status-progress {
+  background-color: #e9a23b;
+}
+
+.status-complete {
+  background-color: #32d657;
+}
+
+.status-incomplete {
+  background-color: #dd524c;
 }
 
 .task-content {
   max-width: 300px;
   font-size: 0.95rem;
+  font-weight: normal;
   color: #444;
   line-height: 1.4;
+  padding-top: 0.5rem;
 }
 
 .author-info {
-  font-size: 14px;
+  font-size: 0.95rem;
   text-align: center;
-  margin-top: 16px;
+  margin-top: 1rem;
   color: rgb(55, 65, 81);
 }
 
