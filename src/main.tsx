@@ -4,8 +4,4 @@ import { createRoot } from 'react-dom/client';
 import './style.css';
 import { TaskBoard } from './TaskBoard.tsx';
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <TaskBoard />
-  </StrictMode>
-);
+createRoot(document.getElementById('root')!).render(<TaskBoard />);

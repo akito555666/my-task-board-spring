@@ -1,64 +1,85 @@
+/* ==========================================================================
+   Global Styles
+   ========================================================================== */
+
 :root {
+  /* Colors */
   --bg-in-progress: #f5d565;
   --bg-completed: #a0ecb1;
   --bg-wont-do: #f7d4d3;
   --bg-to-do: #e3e8ef;
   --bg-add-task: #f5e8d5;
+  --primary-color: #007bff;
+  --danger-color: #dc3545;
+  --text-color: #000;
+  --text-color-light: #666;
+  --background-color: #f0f2f5;
+  --white: #fff;
+  --border-color: #ccc;
+  --border-color-light: #eee;
+
+  /* Spacing & Sizing */
   --card-radius: 12px;
   --card-padding: 1rem;
-  --transition-speed: 0.3s;
-}
+  --button-radius: 12px;
 
+  /* Transitions */
+  --transition-speed: 0.3s;
+
+  /* Font Sizes */
+  --font-size-large: 2rem;
+  --font-size-medium: 1.2rem;
+  --font-size-normal: 1rem;
+  --font-size-small: 0.95rem;
+}
 
 body {
   font-family: 'Segoe UI', sans-serif;
-  background-color: #f0f2f5;
+  background-color: var(--background-color);
   margin: 0;
   padding: 2rem;
-  color: #000;
+  color: var(--text-color);
 }
+
+/* ==========================================================================
+   Board Header Component
+   ========================================================================== */
 
 .board-header {
   display: flex;
-  flex: 1 1 auto;
   align-items:flex-start;
-  justify-content: space-between;
   gap: 0.25rem;
-  padding: 1rem;
-  border-radius: 12px;
-  /* background-color: #fff; */ /* for Debug*/
+  padding-bottom: 1rem;
   max-width: 600px;
   margin: auto;
 }
 
 .board-logo {
-  justify-content: flex-start;
   margin: 0.5rem;
   margin-top: 0.25rem;
 }
 
 .board-text {
   flex: 1 1 auto;
-  /* text-align: center; */
 }
 
 .board-title {
   display: flex;
   gap: 0.25rem;
-  font-size: 2.0rem;
+  font-size: var(--font-size-large);
   font-weight: bold;
   border: none;
 }
 
 .board-title-input {
-  font-size: 2.0rem;
+  font-size: var(--font-size-large);
   font-weight: bold;
   border: none;
-  color: #000;
+  color: var(--text-color);
 }
 
 .board-title-input:enabled {
-  border: solid 2px #ccc;
+  border: solid 2px var(--border-color);
   border-radius: 8px;
   width: auto;
 }
@@ -74,14 +95,17 @@ body {
 }
 
 .board-description-text {
-  font-size: 1rem;
+  font-size: var(--font-size-normal);
   font-weight: normal;
-  color: #000;
+  color: var(--text-color);
   border: none;
   width: 100%;
   margin-top: 0.5rem;
 }
 
+/* ==========================================================================
+   Task List Component
+   ========================================================================== */
 
 .task-board {
   display: flex;
@@ -92,10 +116,13 @@ body {
   margin: auto;
 }
 
+/* ==========================================================================
+   Task Card Component
+   ========================================================================== */
+
 .task-card {
   display: flex;
   flex-direction: column;
-  flex: 1 1 auto;
   min-width: 200px;
   max-width: 600px;
   max-height: 100px;
@@ -121,15 +148,14 @@ body {
   align-items: center;
   gap: 0.5rem;
   font-weight: bold;
-  justify-content: flex-start;
 }
 
 .task-icon {
   align-self: flex-start;
-  background-color: white;
-  border-radius: 8px;
+  background-color: var(--white);
+  border-radius: 12px;
   padding: 0.3rem;
-  font-size: 1.2rem;
+  font-size: var(--font-size-medium);
 }
 
 .task-status {
@@ -138,29 +164,143 @@ body {
   padding: 0.5rem;
 }
 
-.status-in-progress {
-  background-color: #e9a23b;
-}
-
-.status-completed {
-  background-color: #32d657;
-}
-
-.status-wont-do {
-  background-color: #dd524c;
-}
+.status-in-progress { background-color: #e9a23b; }
+.status-completed { background-color: #32d657; }
+.status-wont-do { background-color: #dd524c; }
 
 .task-content {
-  max-width: 300px;
-  font-size: 0.95rem;
+  max-width: 290px;
+  font-size: var(--font-size-small);
   font-weight: normal;
   color: #444;
   line-height: 1.4;
   padding-top: 0.5rem;
 }
 
+/* ==========================================================================
+   Modal Component
+   ========================================================================== */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: var(--white);
+  padding: 20px;
+  border-radius: 8px;
+  min-width: 300px;
+  max-width: 500px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color-light);
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
+
+.modal-header h2 {
+  margin: 0;
+}
+
+.modal-close-button {
+  border: none;
+  background: transparent;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.modal-body {
+  padding-top: 10px;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--button-radius);
+  font-size: var(--font-size-normal);
+}
+
+.icon-selector, .status-selector {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.task-icon,
+.task-status-option {
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: var(--button-radius);
+  border: 2px solid transparent;
+}
+
+.task-icon.selected,
+.task-status-option.selected {
+  border-color: var(--primary-color);
+  background-color: #e7f3ff;
+}
+
+.task-status-option {
+  text-transform: capitalize;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color-light);
+  margin-top: 1rem;
+}
+
+.btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: var(--button-radius);
+  cursor: pointer;
+  font-size: var(--font-size-normal);
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: var(--white);
+}
+
+.btn-danger {
+  background-color: var(--danger-color);
+  color: var(--white);
+}
+
+/* ==========================================================================
+   Author Info
+   ========================================================================== */
+
 .author-info {
-  font-size: 0.95rem;
+  font-size: var(--font-size-small);
   text-align: center;
   margin-top: 1rem;
   color: rgb(55, 65, 81);
