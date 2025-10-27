@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { Task } from "../types";
+import React, { useState, useEffect, use } from "react";
+import { Task } from "../../types";
+import { useModal } from "./useModal";
 
-const availableIcons = ['⏰️', '🏋️‍♂️', '☕', '📚'];
+const availableIcons = ['🧑‍💻', '💬', '⏰️', '🏋️‍♂️', '☕', '📚'];
 const availableStatuses: Task['status'][] = ['in-progress', 'completed', 'wont-do'];
 
 interface ModalProps {
@@ -13,7 +14,9 @@ interface ModalProps {
 }
 
 export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, task, onSave, onDelete }) => {
-  const [editTask, setEditTask] = useState<Task | null>(task);
+  const [editTask, setEditTask] = useState<Partial<Task> | null>(task);
+
+  const { handleInputChange, handleIconSelect, handleStatusSelect } = useModal({ setEditTask });  // Custom hook for modal logic
 
   useEffect(() => {
     setEditTask(task);
@@ -21,39 +24,14 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, task, onSave, onD
 
   if (!isOpen || !editTask) return null;
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setEditTask(prev => prev ? { ...prev, [name]: value } : null);
-  };
-
-  const handleIconSelect = (icon: string) => {
-    setEditTask(prev => {
-      if (!prev) return null;
-      if (prev.icon === icon) {
-        return { ...prev, icon: '' };
-      }
-      return { ...prev, icon };
-    });
-  };
-
-  const handleStatusSelect = (status: Task['status']) => {
-    setEditTask(prev => {
-      if (!prev) return null;
-      if (prev.status === status) {
-        return { ...prev, status: 'to-do' };
-      }
-      return { ...prev, status };
-    });
-  };
-
   const handleSave = () => {
-    if (editTask) {
-      onSave(editTask);
+    if (editTask && editTask.id !== undefined) {
+      onSave(editTask as Task);
     }
   };
 
   const handleDelete = () => {
-    if (editTask) {
+    if (editTask && editTask.id !== undefined) {
       onDelete(editTask.id);
     }
   };

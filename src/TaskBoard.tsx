@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Task } from "./types";
 import { BoardHeader } from "./components/BoardHeader";
 import { TaskList } from "./components/TaskList";
-import { Modal } from "./components/Modal";
+import { Modal } from "./components/modal/Modal";
 
 const initialTasks: Task[] = [
   { id: 1, name: 'Task in Progress', status: 'in-progress', icon: '⏰️', content: 'Work on a Challenge on devchallenges.io.' },
@@ -20,7 +20,7 @@ export const TaskBoard = (): React.ReactElement => {
     if (task) {
       setSelectedTask(task);
     } else {
-      const newId = tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1;
+      const newId = tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1; // Generate new ID. TOBE Created DB
       setSelectedTask({ id: newId, name: '', content: '', icon: '➕️', status: 'to-do' });
     }
     setModalOpen(true);
