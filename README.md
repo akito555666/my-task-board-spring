@@ -1,3 +1,29 @@
+# Java エンジニアが DevChallenges - My Task Board に挑戦してみた！
+こんにちは。
+今回は、DevChallenges の My Task Board に挑戦してみました。
+私は Java エンジニアですが、React をひと通り学習したので、腕試しにフルスタックのアプリ開発に挑戦してみようと思いました。
+
+## 実行方法
+1.リポジトリ上部の Code からソースコードをダウンロードし、任意の場所に展開します。
+
+例：`C:\DevChallenges\my-task-board-master-main`
+
+2.ソースコードを展開したルートフォルダ( index.html や src フォルダがある場所)で [Visual Studio Code](https://code.visualstudio.com/) (以降、VSCode)を開きます。
+
+`code C:\DevChallenges\my-task-board-master-main`
+
+3.VSCode で以下のコマンドを実行します。
+
+`npm run dev`
+
+4.Webブラウザで以下のURLにアクセスします。
+
+(`ポート番号：5173`を使用します)
+
+http://localhost:5173/index.html
+
+問題なくページが表示されれば、アプリを使用することができます！
+
 # DevChallenges.io - My Task Board
 
 ![Thumbnail for the My Task Board coding challenge](./thumbnail.jpg)
