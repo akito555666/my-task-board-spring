@@ -1,22 +1,56 @@
-import { JSX } from "react";
+import React, { useState } from "react";
+import { Task } from "./types";
+import { BoardHeader } from "./components/BoardHeader";
+import { TaskList } from "./components/TaskList";
+import { Modal } from "./components/modal/Modal";
 
-export const TaskBoard = (): JSX.Element => {
+const initialTasks: Task[] = [
+  { id: 1, name: 'Task in Progress', status: 'in-progress', icon: '⏰️', content: 'Work on a Challenge on devchallenges.io.' },
+  { id: 2, name: 'Task Completed', status: 'completed', icon: '🏋️‍♂️', content: 'Work on a Challenge on devchallenges.io!' },
+  { id: 3, name: 'Task Won’t Do', status: 'wont-do', icon: '☕', content: 'Work on a Challenge on devchallenges.io...' },
+  { id: 4, name: 'Task To Do', status: 'to-do', icon: '📚', content: 'Work on a Challenge on devchallenges.io, to learn TypeScript.' },
+];
+
+export const TaskBoard = (): React.ReactElement => {
+  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+
+  const openModal = (task?: Task) => {
+    if (task) {
+      setSelectedTask(task);
+    } else {
+      const newId = tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1; // Generate new ID. TOBE Created DB
+      setSelectedTask({ id: newId, name: '', content: '', icon: '➕️', status: 'to-do' });
+    }
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+    setSelectedTask(null);
+  };
+
+  const handleSaveTask = (savedTask: Task) => {
+    const taskExists = tasks.some(task => task.id === savedTask.id);
+    if (taskExists) {
+      setTasks(tasks.map(task => task.id === savedTask.id ? savedTask : task));
+    } else {
+      setTasks([...tasks, savedTask]);
+    }
+    closeModal();
+  };
+
+  const handleDeleteTask = (taskId: number) => {
+    setTasks(tasks.filter(task => task.id !== taskId));
+    closeModal();
+  };
+
   return (
     <>
-      <div className="task-board">
-        <div className="task-board-name">My Task Board</div>
-        <div className="task-board-description">Tasks to keep organised</div>
-        {/* ここにタスクボードの内容を追加します */}
-        {/* <div>Enter a short description</div>
-      <div>In Progress</div>
-      <div>Completed</div>
-      <div>Won’t do</div> */}
-        <div className="task-board-items task-in-progress">Task in Progress</div>
-        <div className="task-board-items task-completed">Task Completed</div>
-        <div className="task-board-items task-wont-do">Task Won’t Do</div>
-        <div className="task-board-items task-todo">Task To Do</div>
-        <div className="task-board-items task-add-new">Add new task</div>
-      </div>
+      <BoardHeader />
+      <TaskList tasks={tasks} openModal={openModal} />
+      <Modal isOpen={modalOpen} onClose={closeModal} task={selectedTask} onSave={handleSaveTask} onDelete={handleDeleteTask} />
     </>
   );
 };
