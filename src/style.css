@@ -18,7 +18,8 @@
   --danger-color: #97A3B6;
   --danger-hober-color: #DD524C;
   --text-color: #000;
-  --text-color-light: #F8FAFC;
+  --text-color-light: #97A3B6;
+  --button-text-color: #F8FAFC;
   --background-color: #F8FAFC;
   --border-color: #E3E8EF;
   --border-color-light: #eee;
@@ -28,7 +29,9 @@
   --card-radius: 12px;
   --card-padding: 1rem;
   --border-radius: 8px;
-  --button-radius: 12px;
+  --button-radius: 8px;
+  --modal-status-radius: 12px;
+  --modal-save-delete-button-radius: 20px;
 
   /* Transitions */
   --transition-speed: 0.3s;
@@ -163,7 +166,7 @@ body {
 .task-icon-card {
   align-self: flex-start;
   background-color: var(--background-color);
-  border-radius: 12px;
+  border-radius: var(--border-radius);
   padding: 0.3rem;
   font-size: var(--font-size-medium);
 }
@@ -188,6 +191,12 @@ body {
   /* 長いテキストや改行を許容して高さを伸ばす */
   white-space: pre-wrap;
   word-break: break-word;
+}
+
+.task-icon-img { 
+  background-color: #e9a23b; 
+  border-radius: var(--button-radius);
+  padding: 0.3rem; 
 }
 
 /* ==========================================================================
@@ -225,7 +234,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid var(--border-color-light);
+  /* border-bottom: 1px solid var(--border-color-light); */
   padding-bottom: 10px;
   margin-bottom: 10px;
 }
@@ -235,13 +244,34 @@ body {
 }
 
 .modal-close-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: none;
   background: transparent;
-  font-size: 1.5rem;
+  padding: 4px;
+  margin: 0;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
   cursor: pointer;
+  line-height: 0;
+}
+
+.modal-close-img {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+/* ホバー時の視覚フィードバック */
+.modal-close-button:hover .modal-close-img {
+  opacity: 0.85;
+  transform: scale(1.05);
+  transition: transform 0.12s ease, opacity 0.12s ease;
 }
 
 .modal-body {
+  color: var(--text-color-light);
   padding-top: 10px;
 
   /* 本文領域を伸ばしスクロール可能にする */
@@ -272,14 +302,14 @@ body {
 .form-group label {
   display: block;
   margin-bottom: 0.5rem;
-  font-weight: bold;
+  /* font-weight: bold; */
 }
 
 .form-control {
   width: 100%;
   box-sizing: border-box;
   padding: 0.5rem;
-  border: 1px solid var(--border-color);
+  border: 2px solid var(--border-color);
   border-radius: var(--border-radius);
   font-size: var(--font-size-normal);
   background-color: var(--background-color);
@@ -287,12 +317,22 @@ body {
   min-height: 40px;
 }
 
+.form-control:focus,
+.form-control:focus-within {
+  border-color: var(--primary-color);
+  outline: none;
+}
+
 /* テキストエリア: デフォルトサイズは維持しつつ、リサイズハンドルを非表示にして自動高さ調整を可能に */
 textarea.form-control {
   resize: none;        /* ユーザーによる手動リサイズハンドルを非表示に */
   overflow: hidden;    /* 自動サイズ時にスクロールバーを出さない */
-  min-height: 40px;    /* 既存のデフォルトを維持 */
+  min-height: 16rem;    /* 既存のデフォルトを維持 */
   box-sizing: border-box;
+}
+
+textarea.form-control::placeholder {
+  color: var(--text-color-light);
 }
 
 .icon-selector, .status-selector {
@@ -312,15 +352,15 @@ textarea.form-control {
   flex: 0 0 auto; /* 折り返しても要素のサイズを維持 */
 }
 
-.task-status-option {
-  border-color: var(--border-color);
-  background-color: var(--background-color);
-}
-
-.task-icon.selected {
+.task-icon-modal.selected {
   background-color: #F5D565;
 }
 
+.task-status-option {
+  border-radius: var(--modal-status-radius);
+  border-color: var(--border-color);
+  background-color: var(--background-color);
+}
 
 .task-status-option.selected {
   border-color: var(--primary-color);
@@ -328,6 +368,7 @@ textarea.form-control {
 
 .task-status-option {
   text-transform: capitalize;
+  color: var(--text-color);
 }
 
 .modal-footer {
@@ -344,26 +385,26 @@ textarea.form-control {
 .btn {
   padding: 0.5rem 1rem;
   border: none;
-  border-radius: var(--button-radius);
+  border-radius: var(--modal-save-delete-button-radius);
   cursor: pointer;
   font-size: var(--font-size-normal);
 }
 
 .btn-primary {
   background-color: var(--primary-color);
-  color: var(--text-color-light);
+  color: var(--button-text-color);
 }
 
 .btn-danger {
   background-color: var(--danger-color);
-  color: var(--text-color-light);
+  color: var(--button-text-color);
 }
 .btn-danger:hover {
   background-color: var(--danger-hober-color);
 }
 
 /* モバイルでは全幅モーダルに */
-@media (max-width: 700px) {
+@media (max-width: 640px) {
   .modal-overlay {
     justify-content: center;
     align-items: stretch;
@@ -371,7 +412,7 @@ textarea.form-control {
   }
   .modal-content {
     width: calc(100vw - 16px);
-    height: calc(66% - 16px);
+    /* height: calc(66% - 16px); */
     max-width: calc(100vw - 16px);
     border-radius: 10px;
     margin: 16px;

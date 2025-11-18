@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Task } from "../../types";
 import { useModal } from "./useModal";
+import CloseIcon from "../../../resources/close_ring_duotone-1.svg";
 
 const availableIcons = ['🧑‍💻', '💬', '⏰️', '🏋️‍♂️', '☕', '📚'];
 const availableStatuses: Task['status'][] = ['in-progress', 'completed', 'wont-do'];
@@ -58,7 +59,9 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, task, onSave, onD
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2>Task details</h2>
-          <button onClick={onClose} className="modal-close-button">&times;</button>
+          <button onClick={onClose} className="modal-close-button" aria-label="Close">
+            <img src={CloseIcon} alt="Close" className="modal-close-img" />
+          </button>
         </div>
         <div className="modal-body">
           <div className="form-group">
