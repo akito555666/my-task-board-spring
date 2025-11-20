@@ -1,27 +1,59 @@
-import React, { useState } from "react";
-import { Task } from "./types";
+import React, { useState, useEffect } from "react";
+import { Board, Task } from "./types";
 import { BoardHeader } from "./components/BoardHeader";
 import { TaskList } from "./components/TaskList";
 import { Modal } from "./components/modal/Modal";
 
-const initialTasks: Task[] = [
-  { id: 1, name: 'Task in Progress', status: 'in-progress', icon: '⏰️', content: 'Work on a Challenge on devchallenges.io.' },
-  { id: 2, name: 'Task Completed', status: 'completed', icon: '🏋️‍♂️', content: 'Work on a Challenge on devchallenges.io!' },
-  { id: 3, name: 'Task Won’t Do', status: 'wont-do', icon: '☕', content: 'Work on a Challenge on devchallenges.io...' },
-  { id: 4, name: 'Task To Do', status: 'to-do', icon: '📚', content: 'Work on a Challenge on devchallenges.io, to learn TypeScript.' },
-];
+const API_URL = 'http://localhost:3001/api';
 
 export const TaskBoard = (): React.ReactElement => {
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+  const [board, setBoard] = useState<Board | null>(null);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
-  const openModal = (task?: Task) => {
+  useEffect(() => {
+    const boardId = localStorage.getItem('boardId');
+    if (boardId) {
+      fetchBoard(boardId);
+    } else {
+      createNewBoard();
+    }
+  }, []);
+
+  const fetchBoard = async (boardId: string) => {
+    try {
+      const response = await fetch(`${API_URL}/boards/${boardId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setBoard(data.board);
+        setTasks(data.tasks);
+        localStorage.setItem('boardId', data.board.id);
+      } else {
+        // If board not found, create a new one
+        createNewBoard();
+      }
+    } catch (error) {
+      console.error('Failed to fetch board:', error);
+    }
+  };
+
+  const createNewBoard = async () => {
+    try {
+      const response = await fetch(`${API_URL}/boards`, { method: 'POST' });
+      const newBoard = await response.json();
+      fetchBoard(newBoard.id);
+    } catch (error) {
+      console.error('Failed to create a new board:', error);
+    }
+  };
+
+  const openModal = (task?: Task, status?: string) => {
     if (task) {
       setSelectedTask(task);
     } else {
-      const newId = tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1; // Generate new ID. TOBE Created DB
-      setSelectedTask({ id: newId, name: '', content: '', icon: '➕️', status: 'to-do' });
+      // For creating a new task.
+      setSelectedTask({ id: '', name: '', content: '', icon: '➕️', status: status || '' });
     }
     setModalOpen(true);
   };
@@ -31,26 +63,67 @@ export const TaskBoard = (): React.ReactElement => {
     setSelectedTask(null);
   };
 
-  const handleSaveTask = (savedTask: Task) => {
-    const taskExists = tasks.some(task => task.id === savedTask.id);
-    if (taskExists) {
-      setTasks(tasks.map(task => task.id === savedTask.id ? savedTask : task));
-    } else {
-      setTasks([...tasks, savedTask]);
+  const handleSaveTask = async (savedTask: Task) => {
+    const isNewTask = !savedTask.id;
+    const method = isNewTask ? 'POST' : 'PUT';
+    const url = isNewTask ? `${API_URL}/tasks` : `${API_URL}/tasks/${savedTask.id}`;
+    
+    if (!board) return;
+
+    // For new tasks, the status must be set.
+    if (isNewTask && !savedTask.status) {
+        alert("Please select a status for the new task.");
+        return;
+    }
+
+    const body = JSON.stringify(savedTask);
+
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body,
+      });
+
+      if (response.ok) {
+        await fetchBoard(board.id); // Refetch to get the latest state
+      } else {
+        const errorData = await response.json();
+        console.error('Failed to save task:', errorData.message);
+        alert(`Failed to save task: ${errorData.message}`);
+      }
+    } catch (error) {
+      console.error('Error saving task:', error);
     }
     closeModal();
   };
 
-  const handleDeleteTask = (taskId: number) => {
-    setTasks(tasks.filter(task => task.id !== taskId));
+  const handleDeleteTask = async (taskId: string) => {
+    if (!board) return;
+    try {
+      const response = await fetch(`${API_URL}/tasks/${taskId}?boardId=${board.id}`, {
+        method: 'DELETE',
+      });
+      if (response.ok) {
+        await fetchBoard(board.id); // Refetch to get the latest state
+      } else {
+        console.error('Failed to delete task');
+      }
+    } catch (error) {
+      console.error('Error deleting task:', error);
+    }
     closeModal();
   };
+
+  if (!board) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <>
       <BoardHeader />
-      <TaskList tasks={tasks} openModal={openModal} />
-      <Modal isOpen={modalOpen} onClose={closeModal} task={selectedTask} onSave={handleSaveTask} onDelete={handleDeleteTask} />
+      <TaskList board={board} tasks={tasks} openModal={openModal} />
+      <Modal isOpen={modalOpen} onClose={closeModal} board={board} task={selectedTask} onSave={handleSaveTask} onDelete={handleDeleteTask} />
     </>
   );
 };

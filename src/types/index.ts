@@ -1,7 +1,19 @@
 export interface Task {
-  id: number;
+  id: string;
   name: string;
-  status: 'in-progress' | 'completed' | 'wont-do' | 'to-do';
+  status: string;
   icon: string;
   content: string;
+}
+
+export interface Column {
+  id: string;
+  name: string;
+  taskIds: string[];
+}
+
+export interface Board {
+  id: string;
+  name: string;
+  columns: Column[];
 }

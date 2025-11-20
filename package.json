@@ -3,16 +3,29 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "vite",
+    "dev:server": "node -r dotenv/config -r ts-node/register server/index.ts",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "db:init": "\"C:\\Program Files\\PostgreSQL\\18\\bin\\psql.exe\" -U postgres -d taskboard -a -f server/init.sql"
   },
   "dependencies": {
+    "@types/pg": "^8.15.6",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "lowdb": "^7.0.1",
+    "nanoid": "^5.1.6",
+    "pg": "^8.16.3",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.5",
     "@vitejs/plugin-react": "^5.0.4",
     "typescript": "^5.9.3",
     "vite": "^7.1.12"

@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Task } from "../../types";
+import { Board, Task } from "../../types";
 import { useModal } from "./useModal";
 import InProgressIcon from "../../../resources/Time_atack_duotone.svg";
 import CompletedIcon from "../../../resources/Done_round_duotone.svg";
 import WontDoIcon from "../../../resources/close_ring_duotone.svg";
+import ToDoIcon from "../../../resources/Add_round_duotone.svg";
 import StatusSelectIcon from "../../../resources/Done_round_duotone.svg";
 import SaveIcon from "../../../resources/Done_round.svg";
 import DeleteIcon from "../../../resources/Trash.svg";
@@ -11,21 +12,23 @@ import CloseIcon from "../../../resources/close_ring_duotone-1.svg";
 
 const availableIcons = ['🧑‍💻', '💬', '☕', '🏋️‍♂️', '📚', '⏰️'];
 
-const statusOptions: { value: Task['status']; label: string; icon: string }[] = [
-  { value: 'in-progress', label: 'In Progress', icon: InProgressIcon },
-  { value: 'completed', label: 'Completed', icon: CompletedIcon },
-  { value: 'wont-do', label: "Won't do", icon: WontDoIcon },
-];
+const getStatusIcon = (statusName: string) => {
+  if (statusName.toLowerCase().includes('progress')) return InProgressIcon;
+  if (statusName.toLowerCase().includes('completed')) return CompletedIcon;
+  if (statusName.toLowerCase().includes('do')) return WontDoIcon;
+  return ToDoIcon;
+};
 
 interface ModalProps {
   onClose: () => void;
   isOpen: boolean;
+  board: Board | null;
   task: Task | null;
   onSave: (task: Task) => void;
-  onDelete: (taskId: number) => void;
+  onDelete: (taskId: string) => void;
 }
 
-export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, task, onSave, onDelete }) => {
+export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, board, task, onSave, onDelete }) => {
   const [editTask, setEditTask] = useState<Partial<Task> | null>(task);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -35,7 +38,6 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, task, onSave, onD
     setEditTask(task);
   }, [task]);
 
-  // textarea の高さをコンテンツに合わせる
   const adjustTextareaHeight = () => {
     const ta = textareaRef.current;
     if (!ta) return;
@@ -44,23 +46,30 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, task, onSave, onD
   };
 
   useEffect(() => {
-    // モーダル開閉やタスク変更時に高さを調整
     if (isOpen) {
-      // 少し遅延を入れて描画後に高さを合わせる
       setTimeout(adjustTextareaHeight, 0);
     }
   }, [isOpen, task?.content]);
 
   if (!isOpen || !editTask) return null;
 
+  const statusOptions = board?.columns.map(column => ({
+    value: column.id,
+    label: column.name,
+    icon: getStatusIcon(column.name),
+  })) || [];
+
   const handleSave = () => {
-    if (editTask && editTask.id !== undefined) {
+    if (editTask && editTask.name && editTask.status) {
       onSave(editTask as Task);
+    } else {
+      // Basic validation feedback
+      alert("Task name and status are required.");
     }
   };
 
   const handleDelete = () => {
-    if (editTask && editTask.id !== undefined) {
+    if (editTask && editTask.id) {
       onDelete(editTask.id);
     }
   };
@@ -119,7 +128,7 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, task, onSave, onD
           </div>
         </div>
         <div className="modal-footer">
-          <button onClick={handleDelete} className="btn btn-danger">Delete<img src={DeleteIcon} alt="Delete" className="btn-delete-icon" /></button>
+          <button onClick={handleDelete} className="btn btn-danger" disabled={!editTask.id}>Delete<img src={DeleteIcon} alt="Delete" className="btn-delete-icon" /></button>
           <button onClick={handleSave} className="btn btn-primary">Save<img src={SaveIcon} alt="Save" className="btn-save-icon" /></button>
         </div>
       </div>

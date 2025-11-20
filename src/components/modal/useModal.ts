@@ -20,13 +20,10 @@ export const useModal = ({ setEditTask }: Props) => {
     });
   };
 
-  const handleStatusSelect = (status: Task['status']) => {
+  const handleStatusSelect = (status: string) => {
     setEditTask(prev => {
       if (!prev) {
-        return { status: 'to-do' }; // Default status if prev is null
-      }
-      if (prev.status === status) {
-        return { ...prev, status: 'to-do' };
+        return { status: '' };
       }
       return { ...prev, status };
     });
