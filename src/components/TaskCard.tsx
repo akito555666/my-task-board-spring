@@ -29,7 +29,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onClick }) => {
         <span className="task-icon-card">{task.icon}</span>
         <span className="task-name">{task.name}</span>
         {task.status !== 'to-do' && (
-          <img src={getStatusIcon(task.status)} alt={`${task.name} icon`} className={`task-status status-${task.status}`} />
+          <img src={getStatusIcon(task.status) || undefined} alt={`${task.name} icon`} className={`task-status status-${task.status}`} />
         )}
       </div>
       <div className="task-content">

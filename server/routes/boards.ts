@@ -22,7 +22,7 @@ router.get('/:boardId', async (req, res) => {
 
     const columnsRes = await query('SELECT * FROM columns WHERE board_id = $1', [boardId]);
     const tasksRes = await query(
-      'SELECT t.* FROM tasks t JOIN columns c ON t.status = c.id WHERE c.board_id = $1 ORDER BY t.task_order',
+      'SELECT t.* FROM tasks t JOIN columns c ON t.column_id = c.id WHERE c.board_id = $1 ORDER BY t.task_order',
       [boardId]
     );
 
@@ -30,7 +30,7 @@ router.get('/:boardId', async (req, res) => {
     board.columns = columnsRes.rows.map((c) => ({
       id: c.id,
       name: c.name,
-      taskIds: tasks.filter((t) => t.status === c.id).map((t) => t.id),
+      taskIds: tasks.filter((t) => t.column_id === c.id).map((t) => t.id),
     }));
 
     res.json({ board, tasks });
@@ -53,12 +53,42 @@ router.post('/', async (req, res) => {
       { id: nanoid(), name: 'In Progress' },
       { id: nanoid(), name: 'Completed' },
       { id: nanoid(), name: "Won't do" },
+      { id: nanoid(), name: "To Do" },
     ];
 
     const defaultTasks = [
-      { id: nanoid(), name: 'Task in Progress', status: columns[0].id, icon: 'Time_atack_duotone', content: 'This is a task in progress.' },
-      { id: nanoid(), name: 'Task Completed', status: columns[1].id, icon: 'Done_round_duotone', content: 'This is a completed task.' },
-      { id: nanoid(), name: "Task Won't Do", status: columns[2].id, icon: 'close_ring_duotone', content: "This is a task that won't be done." },
+      { 
+        id: nanoid(), 
+        name: 'Task in Progress', 
+        column_id: columns[0].id, 
+        status: 'in-progress',
+        icon: '⏰️', 
+        content: 'This is a task in progress.' 
+      },
+      { 
+        id: nanoid(), 
+        name: 'Task Completed', 
+        column_id: columns[1].id, 
+        status: 'completed',
+        icon: '🏋️‍♂️', 
+        content: 'This is a completed task.' 
+      },
+      { 
+        id: nanoid(), 
+        name: "Task Won't Do", 
+        column_id: columns[2].id, 
+        status: 'wont-do',
+        icon: '☕', 
+        content: "This is a task that won't be done." 
+      },
+      { 
+        id: nanoid(), 
+        name: "Task To Do", 
+        column_id: columns[3].id, 
+        status: 'to-do',
+        icon: '📚', 
+        content: "Work on a Challenge on decChallenges.io, learn TypeScript." 
+      }
     ];
 
     for (const col of columns) {
@@ -68,8 +98,8 @@ router.post('/', async (req, res) => {
     let order = 0;
     for (const task of defaultTasks) {
       await client.query(
-        'INSERT INTO tasks (id, name, status, icon, content, task_order) VALUES ($1, $2, $3, $4, $5, $6)',
-        [task.id, task.name, task.status, task.icon, task.content, order++]
+        'INSERT INTO tasks (id, column_id, name, status, icon, content, task_order) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+        [task.id, task.column_id, task.name, task.status, task.icon, task.content, order++]
       );
     }
     
@@ -77,7 +107,7 @@ router.post('/', async (req, res) => {
         id: boardId,
         name: 'My Task Board',
         columns: columns.map((c, i) => ({...c, taskIds: [defaultTasks[i].id]})),
-    }
+    };
 
     await client.query('COMMIT');
     res.status(201).json(newBoard);
@@ -100,13 +130,12 @@ router.put('/:boardId', async (req, res) => {
             await query('UPDATE boards SET name = $1 WHERE id = $2', [name, boardId]);
         }
         if (columns) {
-            // This is a complex operation. For simplicity, we'll only handle column reordering and name changes.
-            // A full implementation would handle adding/deleting columns as well.
+            // カラム名の更新とタスクのカラム移動・並び順を反映
             for (const col of columns) {
                 await query('UPDATE columns SET name = $1 WHERE id = $2', [col.name, col.id]);
                 let order = 0;
                 for (const taskId of col.taskIds) {
-                    await query('UPDATE tasks SET status = $1, task_order = $2 WHERE id = $3', [col.id, order++, taskId]);
+                    await query('UPDATE tasks SET column_id = $1, task_order = $2 WHERE id = $3', [col.id, order++, taskId]);
                 }
             }
         }

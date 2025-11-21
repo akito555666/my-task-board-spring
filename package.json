@@ -6,7 +6,7 @@
     "dev:server": "node -r dotenv/config -r ts-node/register server/index.ts",
     "build": "vite build",
     "preview": "vite preview",
-    "db:init": "\"C:\\Program Files\\PostgreSQL\\18\\bin\\psql.exe\" -U postgres -d taskboard -a -f server/init.sql"
+    "db:init": "\"psql.exe\" -U postgres -d taskboard -a -f server/init.sql"
   },
   "dependencies": {
     "@types/pg": "^8.15.6",

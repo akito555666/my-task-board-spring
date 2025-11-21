@@ -11,17 +11,16 @@ interface TaskListProps {
 
 export const TaskList: React.FC<TaskListProps> = ({ board, tasks, openModal }) => {
   return (
-    <div className="task-list-container">
+    <div className="task-board">
       {board.columns.map(column => (
-        <div key={column.id} className="task-list">
-          <h3 className="task-list-title">{column.name}</h3>
+        <div key={column.id} className="task-item">
           {column.taskIds.map(taskId => {
             const task = tasks.find(t => t.id === taskId);
             return task ? <TaskCard key={task.id} task={task} onClick={() => openModal(task)} /> : null;
           })}
-          <AddTaskCard onClick={() => openModal(undefined, column.id)} />
         </div>
       ))}
+      <AddTaskCard onClick={() => openModal()} />
     </div>
   );
 };

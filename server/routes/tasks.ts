@@ -7,27 +7,28 @@ const router = Router();
 
 // POST /api/tasks
 router.post('/', async (req, res) => {
-  const { name, status } = req.body;
+  const { name, column_id, status } = req.body;
 
-  if (!name || !status) {
-    return res.status(400).json({ message: 'Missing required fields' });
+  if (!name || !column_id) {
+    return res.status(400).json({ message: 'Missing required fields: name, column_id' });
   }
 
   try {
-    const orderRes = await query('SELECT count(*) as count FROM tasks WHERE status = $1', [status]);
+    // column_id でのタスク数を取得して並び順を決定
+    const orderRes = await query('SELECT count(*) as count FROM tasks WHERE column_id = $1', [column_id]);
     const order = parseInt(orderRes.rows[0].count, 10);
 
     const newTask: Task = {
       id: nanoid(),
       name,
-      status,
+      status: status || 'to-do', // デフォルトは 'to-do'
       icon: 'Add_round_duotone',
       content: '',
     };
 
     await query(
-      'INSERT INTO tasks (id, name, status, icon, content, task_order) VALUES ($1, $2, $3, $4, $5, $6)',
-      [newTask.id, newTask.name, newTask.status, newTask.icon, newTask.content, order]
+      'INSERT INTO tasks (id, column_id, name, status, icon, content, task_order) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+      [newTask.id, column_id, newTask.name, newTask.status, newTask.icon, newTask.content, order]
     );
 
     res.status(201).json(newTask);
@@ -40,7 +41,7 @@ router.post('/', async (req, res) => {
 // PUT /api/tasks/:taskId
 router.put('/:taskId', async (req, res) => {
   const { taskId } = req.params;
-  const { name, content, icon, status } = req.body;
+  const { name, content, icon, status, column_id } = req.body;
 
   try {
     const taskRes = await query('SELECT * FROM tasks WHERE id = $1', [taskId]);
@@ -53,15 +54,21 @@ router.put('/:taskId', async (req, res) => {
     const newContent = content ?? task.content;
     const newIcon = icon ?? task.icon;
     const newStatus = status ?? task.status;
-    // Note: task_order update is not handled here for simplicity.
-    // A full implementation would require reordering tasks in both old and new columns.
+    const newColumnId = column_id ?? task.column_id;
 
     await query(
-      'UPDATE tasks SET name = $1, content = $2, icon = $3, status = $4 WHERE id = $5',
-      [newName, newContent, newIcon, newStatus, taskId]
+      'UPDATE tasks SET name = $1, content = $2, icon = $3, status = $4, column_id = $5 WHERE id = $6',
+      [newName, newContent, newIcon, newStatus, newColumnId, taskId]
     );
 
-    res.json({ id: taskId, name: newName, content: newContent, icon: newIcon, status: newStatus });
+    res.json({ 
+      id: taskId, 
+      name: newName, 
+      content: newContent, 
+      icon: newIcon, 
+      status: newStatus,
+      column_id: newColumnId 
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Internal server error' });
