@@ -25,7 +25,7 @@ router.post('/', async (req, res) => {
       id: nanoid(),
       name,
       status_name,
-      icon: icon || '📝',
+      icon: icon || '',
       content: content || '',
     };
 
