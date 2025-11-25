@@ -60,7 +60,7 @@ export const Modal: React.FC<ModalProps> = ({
     if (editTask) {
       const taskToSave = {
         ...editTask,
-        name: editTask.name || 'New Task',
+        name: editTask.name || '',
         icon: editTask.icon || '',
         content: editTask.content || '',
         status_name: editTask.status_name || 'to-do',
@@ -128,7 +128,7 @@ export const Modal: React.FC<ModalProps> = ({
               {statusOptions.map(({ value, label, icon }) => (
                 <div
                   key={value || 'empty'}
-                  className={`task-status-option ${editTask.status_name === value ? 'selected' : 'to-do'}`}
+                  className={`task-status-option ${editTask.status_name === value ? 'selected' : ''}`}
                   onClick={() => handleStatusSelect(value)}
                 >
                   {icon && <img src={icon} alt={label} className={`task-status status-${value} status-icon`} />}

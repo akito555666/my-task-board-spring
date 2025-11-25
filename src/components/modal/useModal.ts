@@ -12,11 +12,23 @@ export const useModal = ({ setEditTask }: UseModalProps) => {
   };
 
   const handleIconSelect = (icon: string) => {
-    setEditTask((prev) => prev ? { ...prev, icon } : null);
+    setEditTask(prev => {
+      if (!prev) return null;
+      if (prev.icon === icon) {
+        return { ...prev, icon: '' };
+      }
+      return { ...prev, icon };
+    });
   };
 
   const handleStatusSelect = (status_name: Task['status_name']) => {
-    setEditTask((prev) => prev ? { ...prev, status_name } : null);
+    setEditTask(prev => {
+      if (!prev) return null;
+      if (prev.status_name === status_name) {
+        return { ...prev, status_name: 'to-do' };
+      }
+      return { ...prev, status_name };
+    });
   };
 
   return {
