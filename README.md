@@ -1,28 +1,107 @@
 # Java SE が DevChallenges - My Task Board に挑戦してみた！
+
 こんにちは。
 今回は DevChallenges の My Task Board に挑戦してみました。
 私は主に Java 系を得意とする SE ですが、React をひと通り学習したので、腕試しにフルスタックのアプリ開発に挑戦してみようと思いました。
 
-## 実行方法
-1.リポジトリ上部の Code からソースコードをダウンロードし、任意の場所に展開します。
+## 必要な環境
 
-例：`C:\DevChallenges\my-task-board-master-main`
+- Node.js (v16以上推奨)
+- PostgreSQL (v12以上推奨)
 
-2.ソースコードを展開したルートフォルダ( `index.html` や `/src` フォルダがある場所)で [Visual Studio Code](https://code.visualstudio.com/) (以降、VSCode)を開きます。
+## セットアップ手順
 
-`code C:\DevChallenges\my-task-board-master-main`
+### 1. リポジトリのクローン
 
-3.VSCode で以下のコマンドを実行します。
+```bash
+git clone <repository-url>
+cd my-task-board-master
+```
 
-`npm run dev`
+### 2. 依存関係のインストール
 
-4.Webブラウザで以下のURLにアクセスします。
+```bash
+npm install
+```
 
-(`ポート番号：5173`を使用します)
+### 3. 環境変数の設定
 
-http://localhost:5173/index.html
+`.env.example`をコピーして`.env`ファイルを作成し、自分の環境に合わせて編集してください。
+
+```bash
+# Windowsの場合
+copy .env.example .env
+
+# Mac/Linuxの場合
+cp .env.example .env
+```
+
+`.env`ファイルの例:
+
+```env
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=taskuser
+DB_PASSWORD=your_secure_password_here
+DB_NAME=taskboard
+PGPASSWORD=your_postgres_password_here
+```
+
+### 4. データベースの作成
+
+PostgreSQLで`taskboard`データベースを作成してください。
+
+```bash
+# PostgreSQLにログイン
+psql -U postgres
+
+# データベース作成
+CREATE DATABASE taskboard;
+\q
+```
+
+### 5. データベースの初期化
+
+テーブルとユーザーを作成します。
+
+```bash
+npm run db:init
+```
+
+### 6. アプリケーションの起動
+
+**バックエンドサーバー起動** (別のターミナルで):
+
+```bash
+npm run dev:server
+```
+
+**フロントエンド起動**:
+
+```bash
+npm run dev
+```
+
+### 7. ブラウザでアクセス
+
+http://localhost:5173
 
 問題なくページが表示されれば、アプリを使用することができます！
+
+## トラブルシューティング
+
+### データベース接続エラーが出る場合
+
+- `.env`ファイルの設定を確認してください
+- PostgreSQLが起動しているか確認してください
+- `taskuser`に適切な権限があるか確認してください
+
+### ポートが使用中の場合
+
+- バックエンド: `server/index.ts`の`port`を変更
+- フロントエンド: `vite.config.ts`の`server.port`を変更
+
+---
 
 # DevChallenges.io - My Task Board
 

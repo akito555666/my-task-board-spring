@@ -6,7 +6,7 @@
     "dev:server": "node -r dotenv/config -r ts-node/register server/index.ts",
     "build": "vite build",
     "preview": "vite preview",
-    "db:init": "\"psql.exe\" -U postgres -d taskboard -a -f server/init.sql"
+    "db:init": "ts-node -r dotenv/config server/setup-db.ts"
   },
   "dependencies": {
     "@types/pg": "^8.15.6",
@@ -26,6 +26,7 @@
   "devDependencies": {
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.5",
+    "@types/node": "^22.10.5",
     "@vitejs/plugin-react": "^5.0.4",
     "typescript": "^5.9.3",
     "vite": "^7.1.12"

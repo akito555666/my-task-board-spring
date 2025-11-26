@@ -22,7 +22,7 @@ router.get('/:boardId', async (req, res) => {
     };
 
     const tasksRes = await query(
-      'SELECT * FROM tasks WHERE board_id = $1 ORDER BY task_order',
+      'SELECT * FROM tasks WHERE board_id = $1 ORDER BY created_at ASC',
       [boardId]
     );
 
@@ -54,7 +54,7 @@ router.post('/', async (req, res) => {
         status_name: 'in-progress',
         icon: '⏰', 
         content: 'This is a task in progress.',
-        task_order: 0
+        task_order: 1
       },
       { 
         id: nanoid(), 
@@ -62,7 +62,7 @@ router.post('/', async (req, res) => {
         status_name: 'completed',
         icon: '🏋️‍♂️', 
         content: 'This is a completed task.',
-        task_order: 1
+        task_order: 2
       },
       { 
         id: nanoid(), 
@@ -70,15 +70,15 @@ router.post('/', async (req, res) => {
         status_name: 'wont-do',
         icon: '☕', 
         content: "This is a task that won't be done.",
-        task_order: 2
+        task_order: 3
       },
       { 
         id: nanoid(), 
         name: 'Task To Do', 
-        status_name: '',
+        status_name: 'to-do',
         icon: '📚', 
         content: 'Work on a Challenge on devChallenges.io, learn TypeScript.',
-        task_order: 3
+        task_order: 4
       }
     ];
 
