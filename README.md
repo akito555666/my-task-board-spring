@@ -78,25 +78,14 @@ Prisma Clientを生成します。
 npx prisma generate
 ```
 
-### 6. データベースの初期化
+### 6. データベースのマイグレーション（テーブル作成）
 
-**方法1: Prisma Migrate（推奨）**
-
-マイグレーション履歴が残り、本番環境でも使えます。
+Prisma Migrateを使用して、データベースにテーブルを作成します。
+このコマンドを実行すると、`prisma/migrations` フォルダ内のSQLが実行され、データベースが最新の状態になります。
 
 ```bash
 npx prisma migrate dev
 ```
-
-**方法2: SQLスクリプト直接実行**
-
-開発環境で素早くリセットしたい場合。
-
-```bash
-npm run db:init
-```
-
-**注意**: データベースを再初期化すると、既存のデータは全て削除されます。
 
 ### 7. アプリケーションの起動
 
@@ -118,40 +107,45 @@ http://localhost:5173
 
 問題なくページが表示されれば、アプリを使用することができます！
 
-## データベース管理コマンド
+## 開発フロー：マイグレーションについて
 
-### マイグレーションの作成と適用
+このプロジェクトでは、データベースのスキーマ管理に **Prisma Migrate** を使用しています。
+`prisma/schema.prisma` を変更した際は、以下の手順でデータベースに反映させてください。
 
-スキーマを変更した後、マイグレーションを作成：
+### 1. スキーマの変更を反映する
 
-```bash
-npx prisma migrate dev --name describe_your_changes
-```
-
-### 本番環境へのデプロイ
+`prisma/schema.prisma` ファイルを編集した後、以下のコマンドを実行します。
 
 ```bash
-npx prisma migrate deploy
+npx prisma migrate dev --name <変更内容の説明>
 ```
 
-### 既存データベースからスキーマを取得
+例：タスクに期限カラムを追加した場合
+```bash
+npx prisma migrate dev --name add_due_date_to_tasks
+```
+
+これにより、以下の処理が自動的に行われます：
+1. 新しいSQLマイグレーションファイルの生成（`prisma/migrations/` 配下）
+2. データベースへのSQL適用
+3. Prisma Client（型定義など）の再生成
+
+### 2. データベースの中身を確認・編集する
+
+GUIでデータベースの中身を確認したい場合は、Prisma Studioが便利です。
 
 ```bash
-npx prisma db pull
+npx prisma studio
 ```
 
-### データベースの完全リセット
+ブラウザで `http://localhost:5555` が開き、データの閲覧・編集が可能です。
 
-マイグレーション履歴を保持してリセット：
+### 3. データベースをリセットする
+
+開発中にデータベースを完全にリセット（全データ削除＆テーブル再作成）したい場合：
 
 ```bash
 npx prisma migrate reset
-```
-
-または、SQLスクリプトで直接リセット：
-
-```bash
-npm run db:init
 ```
 
 ## トラブルシューティング
@@ -183,6 +177,7 @@ npm run db:init
 ```
 my-task-board-master/
 ├── prisma/
+│   ├── migrations/        # マイグレーション履歴 (SQL)
 │   └── schema.prisma      # Prismaスキーマ定義
 ├── server/
 │   ├── db.ts              # データベース接続とPrismaクライアント
