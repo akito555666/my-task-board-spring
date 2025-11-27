@@ -78,7 +78,17 @@ npx prisma generate
 
 ### 6. データベースの初期化
 
-テーブルとユーザーを作成します。
+**方法1: Prisma Migrate（推奨）**
+
+マイグレーション履歴が残り、本番環境でも使えます。
+
+```bash
+npx prisma migrate dev
+```
+
+**方法2: SQLスクリプト直接実行**
+
+開発環境で素早くリセットしたい場合。
 
 ```bash
 npm run db:init
@@ -108,12 +118,18 @@ http://localhost:5173
 
 ## データベース管理コマンド
 
-### Prismaスキーマの更新
+### マイグレーションの作成と適用
 
-データベーススキーマを変更した場合:
+スキーマを変更した後、マイグレーションを作成：
 
 ```bash
-npx prisma db push
+npx prisma migrate dev --name describe_your_changes
+```
+
+### 本番環境へのデプロイ
+
+```bash
+npx prisma migrate deploy
 ```
 
 ### 既存データベースからスキーマを取得
@@ -122,15 +138,15 @@ npx prisma db push
 npx prisma db pull
 ```
 
-### Prisma Clientの再生成
+### データベースの完全リセット
 
-スキーマを変更した後は必ず実行:
+マイグレーション履歴を保持してリセット：
 
 ```bash
-npx prisma generate
+npx prisma migrate reset
 ```
 
-### データベースの完全リセット
+または、SQLスクリプトで直接リセット：
 
 ```bash
 npm run db:init
