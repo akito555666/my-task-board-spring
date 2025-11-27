@@ -53,6 +53,8 @@ DB_USER=taskuser
 DB_PASSWORD=your_secure_password_here
 DB_NAME=taskboard
 PGPASSWORD=your_postgres_password_here
+# Prisma Migrate用のシャドウDB接続URL（例: ローカルの別DBを指定）
+SHADOW_DATABASE_URL="postgresql://taskuser:your_secure_password_here@localhost:5432/taskboard_shadow"
 ```
 
 ### 4. データベースの作成

@@ -5,6 +5,8 @@ generator client {
 datasource db {
   provider          = "postgresql"
   url               = env("DATABASE_URL")
+  // The shadowDatabaseUrl is used by Prisma Migrate to detect schema drift and generate migrations safely.
+  // This setting is optional but recommended for development environments.
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
