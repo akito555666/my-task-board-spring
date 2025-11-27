@@ -6,7 +6,8 @@
     "dev:server": "node -r dotenv/config -r ts-node/register server/index.ts",
     "build": "vite build",
     "preview": "vite preview",
-    "db:init": "ts-node -r dotenv/config server/setup-db.ts"
+    "db:init": "ts-node -r dotenv/config server/setup-db.ts",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@types/pg": "^8.15.6",
