@@ -3,14 +3,22 @@ import { Board, Task } from "./types";
 import { BoardHeader } from "./components/BoardHeader";
 import { TaskList } from "./components/TaskList";
 import { Modal } from "./components/modal/Modal";
+import { API_URL } from "./config";
 
-const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:3001/api');
+interface TaskBoardProps {
+  onLogout?: () => void;
+}
 
-export const TaskBoard = (): React.ReactElement => {
+export const TaskBoard: React.FC<TaskBoardProps> = ({ onLogout }): React.ReactElement => {
   const [board, setBoard] = useState<Board | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem('accessToken');
+    return token ? { 'Authorization': `Bearer ${token}` } : {};
+  };
 
   useEffect(() => {
     const boardId = localStorage.getItem('boardId');
@@ -23,12 +31,16 @@ export const TaskBoard = (): React.ReactElement => {
 
   const fetchBoard = async (boardId: string) => {
     try {
-      const response = await fetch(`${API_URL}/boards/${boardId}`);
+      const response = await fetch(`${API_URL}/boards/${boardId}`, {
+        headers: getAuthHeaders() as HeadersInit
+      });
       if (response.ok) {
         const data = await response.json();
         setBoard(data.board);
         setTasks(data.tasks);
         localStorage.setItem('boardId', data.board.id);
+      } else if (response.status === 401) {
+        onLogout && onLogout();
       } else {
         localStorage.removeItem('boardId');
         createNewBoard();
@@ -43,8 +55,16 @@ export const TaskBoard = (): React.ReactElement => {
     try {
       const response = await fetch(`${API_URL}/boards`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
+        } as HeadersInit
       });
+
+      if (response.status === 401) {
+        onLogout && onLogout();
+        return;
+      }
 
       if (!response.ok) {
         console.error('Failed to create board:', response.statusText);
@@ -106,9 +126,17 @@ export const TaskBoard = (): React.ReactElement => {
     try {
       const response = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
+        } as HeadersInit,
         body: JSON.stringify(bodyData),
       });
+
+      if (response.status === 401) {
+        onLogout && onLogout();
+        return;
+      }
 
       if (response.ok) {
         await fetchBoard(board.id);
@@ -128,7 +156,14 @@ export const TaskBoard = (): React.ReactElement => {
     try {
       const response = await fetch(`${API_URL}/tasks/${taskId}`, {
         method: 'DELETE',
+        headers: getAuthHeaders() as HeadersInit
       });
+
+      if (response.status === 401) {
+        onLogout && onLogout();
+        return;
+      }
+
       if (response.ok) {
         await fetchBoard(board.id);
       } else {
@@ -146,7 +181,7 @@ export const TaskBoard = (): React.ReactElement => {
 
   return (
     <>
-      <BoardHeader />
+      <BoardHeader onLogout={onLogout} />
       <TaskList tasks={tasks} openModal={openModal} />
       <Modal
         isOpen={modalOpen}
