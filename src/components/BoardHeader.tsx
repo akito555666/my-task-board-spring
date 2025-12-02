@@ -2,7 +2,11 @@ import React, { useState } from 'react';
 import Logo from "../../resources/Logo.svg";
 import EditIcon from "../../resources/Edit_duotone.svg";
 
-export const BoardHeader: React.FC = () => {
+interface BoardHeaderProps {
+  onLogout?: () => void;
+}
+
+export const BoardHeader: React.FC<BoardHeaderProps> = ({ onLogout }) => {
   const [boardTitle, setBoardTitle] = useState<string>('My Task Board');
   const [boardTitleDisabled, setBoardTitleDisabled] = useState<boolean>(true);
 
@@ -30,6 +34,23 @@ export const BoardHeader: React.FC = () => {
         </div>
         <div className="board-description">Tasks to keep organised</div>
       </div>
+      {onLogout && (
+        <div style={{ marginLeft: 'auto', paddingRight: '20px' }}>
+          <button
+            onClick={onLogout}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#dc3545',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            Logout
+          </button>
+        </div>
+      )}
     </div>
   );
 };
