@@ -126,6 +126,59 @@ body {
   margin: auto;
 }
 
+/* Task List Component - New Column Layout */
+.task-board-columns {
+  display: flex;
+  flex-direction: row;
+  gap: 1.5rem;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+  align-items: flex-start;
+  min-height: calc(100vh - 200px);
+}
+
+.board-column {
+  flex: 1;
+  min-width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.column-header {
+  font-size: var(--font-size-medium);
+  font-weight: bold;
+  margin: 0;
+  padding-bottom: 0.5rem;
+}
+
+.column-tasks {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 100px; /* ドロップ領域を確保 */
+  height: 100%;
+}
+
+.draggable-task-wrapper {
+  cursor: grab;
+}
+
+.draggable-task-wrapper:active {
+  cursor: grabbing;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .task-board-columns {
+    flex-direction: column;
+  }
+  .board-column {
+    width: 100%;
+    min-width: auto;
+  }
+}
+
 /* ==========================================================================
    Task Card Component
    ========================================================================== */
