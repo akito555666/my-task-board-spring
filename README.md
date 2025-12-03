@@ -1,21 +1,23 @@
-# Java SE が DevChallenges - My Task Board に挑戦してみた！
+# Java SE が DevChallenges - My Task Board に挑戦してみた！ (Spring版)
 
 こんにちは。
-今回は DevChallenges の My Task Board に挑戦してみました。
-私は主に Java 系を得意とする SE ですが、React をひと通り学習したので、腕試しにフルスタックのアプリ開発に挑戦してみようと思いました。
+今回は DevChallenges の My Task Board をベースに、バックエンドにSpringを実装してみました。
+私は主に Java 系を得意とする SE ですが、React と Spring をひと通り学習したので、腕試しにフルスタックのアプリ開発に挑戦してみようと思いました。
 
 ## 必要な環境
 
 - Node.js (v16以上推奨)
+- Java Development Kit (JDK) 21
+- Maven
 - PostgreSQL (v12以上推奨)
 
 ## 技術スタック
 
 - **フロントエンド**: React, TypeScript, Vite
-- **バックエンド**: Node.js, Express
+- **バックエンド**: Java, Spring Boot
 - **データベース**: PostgreSQL
-- **ORM**: Prisma (v6.19.0)
-- **その他**: nanoid (ID生成)
+- **ORM**: Spring Data JPA (Hibernate)
+- **ビルドツール**: Maven
 
 ## セットアップ手順
 
@@ -26,39 +28,23 @@ git clone <repository-url>
 cd my-task-board-master
 ```
 
-### 2. 依存関係のインストール
+### 2. 依存関係のインストールとビルド
 
+**フロントエンド**:
 ```bash
 npm install
 ```
 
-### 3. 環境変数の設定
-
-`.env.example`をコピーして`.env`ファイルを作成し、自分の環境に合わせて編集してください。
-
+**バックエンド**:
 ```bash
-# Windowsの場合
-copy .env.example .env
-
-# Mac/Linuxの場合
-cp .env.example .env
+cd backend
+mvn clean install
+cd ..
 ```
 
-`.env`ファイルの例:
+### 3. データベース設定と作成
 
-```env
-DB_HOST=localhost
-DB_PORT=5432
-DB_USER=taskuser
-DB_PASSWORD=your_secure_password_here
-DB_NAME=taskboard
-PGPASSWORD=your_postgres_password_here
-# Prisma Migrate用のシャドウDB接続URL（例: ローカルの別DBを指定）
-SHADOW_DATABASE_URL="postgresql://taskuser:your_secure_password_here@localhost:5432/taskboard_shadow"
-```
-
-### 4. データベースの作成
-
+**1. データベースの作成**
 PostgreSQLで`taskboard`データベースを作成してください。
 
 ```bash
@@ -70,29 +56,22 @@ CREATE DATABASE taskboard;
 \q
 ```
 
-### 5. Prisma Clientの生成
+**2. バックエンド設定**
+`backend/src/main/resources/application.properties` を確認し、データベース接続情報を環境に合わせて変更してください。
 
-Prisma Clientを生成します。
-
-```bash
-npx prisma generate
+```properties
+spring.datasource.url=jdbc:postgresql://localhost:5432/taskboard
+spring.datasource.username=taskuser
+spring.datasource.password=your_secure_password_here
 ```
 
-### 6. データベースのマイグレーション（テーブル作成）
-
-Prisma Migrateを使用して、データベースにテーブルを作成します。
-このコマンドを実行すると、`prisma/migrations` フォルダ内のSQLが実行され、データベースが最新の状態になります。
-
-```bash
-npx prisma migrate dev
-```
-
-### 7. アプリケーションの起動
+### 4. アプリケーションの起動
 
 **バックエンドサーバー起動** (別のターミナルで):
 
 ```bash
-npm run dev:server
+cd backend
+mvn spring-boot:run
 ```
 
 **フロントエンド起動**:
@@ -101,98 +80,41 @@ npm run dev:server
 npm run dev
 ```
 
-### 8. ブラウザでアクセス
+### 5. ブラウザでアクセス
 
 http://localhost:5173
 
 問題なくページが表示されれば、アプリを使用することができます！
 
-## 開発フロー：マイグレーションについて
-
-このプロジェクトでは、データベースのスキーマ管理に **Prisma Migrate** を使用しています。
-`prisma/schema.prisma` を変更した際は、以下の手順でデータベースに反映させてください。
-
-### 1. スキーマの変更を反映する
-
-`prisma/schema.prisma` ファイルを編集した後、以下のコマンドを実行します。
-
-```bash
-npx prisma migrate dev --name <変更内容の説明>
-```
-
-例：タスクに期限カラムを追加した場合
-```bash
-npx prisma migrate dev --name add_due_date_to_tasks
-```
-
-これにより、以下の処理が自動的に行われます：
-1. 新しいSQLマイグレーションファイルの生成（`prisma/migrations/` 配下）
-2. データベースへのSQL適用
-3. Prisma Client（型定義など）の再生成
-
-### 2. データベースの中身を確認・編集する
-
-GUIでデータベースの中身を確認したい場合は、Prisma Studioが便利です。
-
-```bash
-npx prisma studio
-```
-
-ブラウザで `http://localhost:5555` が開き、データの閲覧・編集が可能です。
-
-### 3. データベースをリセットする
-
-開発中にデータベースを完全にリセット（全データ削除＆テーブル再作成）したい場合：
-
-```bash
-npx prisma migrate reset
-```
-
 ## トラブルシューティング
 
 ### データベース接続エラーが出る場合
 
-- `.env`ファイルの設定を確認してください
+- `backend/src/main/resources/application.properties`の設定を確認してください
 - PostgreSQLが起動しているか確認してください
 - `taskuser`に適切な権限があるか確認してください
-- `DATABASE_URL`が正しく設定されているか確認してください
-
-### Prismaのエラーが出る場合
-
-- `npx prisma generate`を実行してClientを再生成してください
-- Prismaのバージョンが一致しているか確認してください（CLI: 6.19.0, Client: 6.19.0）
-
-### タスクの順序がおかしい場合
-
-- データベースを再初期化してください: `npm run db:init`
-- ブラウザのlocalStorageから`boardId`を削除して、ページをリロードしてください
 
 ### ポートが使用中の場合
 
-- バックエンド: `server/index.ts`の`port`を変更
+- バックエンド: `backend/src/main/resources/application.properties`の`server.port`を変更
 - フロントエンド: `vite.config.ts`の`server.port`を変更
 
 ## プロジェクト構成
 
 ```
 my-task-board-master/
-├── prisma/
-│   ├── migrations/        # マイグレーション履歴 (SQL)
-│   └── schema.prisma      # Prismaスキーマ定義
-├── server/
-│   ├── db.ts              # データベース接続とPrismaクライアント
-│   ├── index.ts           # Expressサーバー
-│   ├── init.sql           # データベース初期化SQL
-│   ├── setup-db.ts        # データベースセットアップスクリプト
-│   └── routes/
-│       ├── boards.ts      # ボード関連API
-│       └── tasks.ts       # タスク関連API
-├── src/
+├── backend/               # Spring Boot バックエンド
+│   ├── src/
+│   │   ├── main/
+│   │   │   ├── java/      # Javaソースコード
+│   │   │   └── resources/ # 設定ファイル
+│   └── pom.xml            # Maven設定
+├── src/                   # Reactフロントエンド
 │   ├── components/        # Reactコンポーネント
 │   ├── types/             # TypeScript型定義
 │   ├── TaskBoard.tsx      # メインコンポーネント
 │   └── main.tsx           # エントリーポイント
-└── .env                   # 環境変数
+└── .env                   # 環境変数 (フロントエンド用)
 ```
 
 ---
