@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
-import boardsRouter from './routes/boards';
-import tasksRouter from './routes/tasks';
+import boardsRouter from './routes/boards.js';
+import tasksRouter from './routes/tasks.js';
 
 const app = express();
 const port = process.env.PORT || 3001;
