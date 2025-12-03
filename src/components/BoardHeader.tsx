@@ -32,7 +32,7 @@ export const BoardHeader: React.FC<BoardHeaderProps> = ({ onLogout }) => {
             <img src={EditIcon} alt="Edit-Icon" className="board-edit-icon-img" />
           </div>
         </div>
-        <div className="board-description">Tasks to keep organised</div>
+        <div className="board-description">タスクを整理しよう</div>
       </div>
       {onLogout && (
         <div style={{ marginLeft: 'auto', paddingRight: '20px' }}>
@@ -47,7 +47,7 @@ export const BoardHeader: React.FC<BoardHeaderProps> = ({ onLogout }) => {
               cursor: 'pointer'
             }}
           >
-            Logout
+            ログアウト
           </button>
         </div>
       )}

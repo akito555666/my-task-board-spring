@@ -1,22 +1,24 @@
 import React, { useState } from 'react';
 import { API_URL } from '../config';
 
-interface LoginProps {
-  onLoginSuccess: () => void;
-  onRegisterClick: () => void;
+interface RegisterProps {
+  onRegisterSuccess: () => void;
+  onLoginClick: () => void;
 }
 
-export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick }) => {
+export const Register: React.FC<RegisterProps> = ({ onRegisterSuccess, onLoginClick }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccessMessage('');
 
     try {
-      const response = await fetch(`${API_URL}/auth/login`, {
+      const response = await fetch(`${API_URL}/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -25,12 +27,13 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick })
       });
 
       if (response.ok) {
-        const data = await response.json();
-        localStorage.setItem('accessToken', data.accessToken);
-        localStorage.setItem('refreshToken', data.refreshToken);
-        onLoginSuccess();
+        setSuccessMessage('登録が完了しました！ログインしてください');
+        setTimeout(() => {
+          onRegisterSuccess();
+        }, 2000);
       } else {
-        setError('ログインに失敗しました。ユーザー名とパスワードを確認してください。');
+        const data = await response.text();
+        setError(data || '登録に失敗しました。');
       }
     } catch (err) {
       setError('エラーが発生しました。もう一度お試しください。');
@@ -54,8 +57,9 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick })
         width: '100%',
         maxWidth: '400px'
       }}>
-        <h2 style={{ marginBottom: '1.5rem', textAlign: 'center' }}>ログイン</h2>
+        <h2 style={{ marginBottom: '1.5rem', textAlign: 'center' }}>新規登録</h2>
         {error && <div style={{ color: 'red', marginBottom: '1rem', textAlign: 'center' }}>{error}</div>}
+        {successMessage && <div style={{ color: 'green', marginBottom: '1rem', textAlign: 'center' }}>{successMessage}</div>}
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: '1rem' }}>
             <label style={{ display: 'block', marginBottom: '0.5rem' }}>ユーザー名</label>
@@ -92,7 +96,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick })
             style={{
               width: '100%',
               padding: '0.75rem',
-              backgroundColor: '#007bff',
+              backgroundColor: '#28a745',
               color: 'white',
               border: 'none',
               borderRadius: '4px',
@@ -101,13 +105,13 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick })
               marginBottom: '1rem'
             }}
           >
-            ログイン
+            新規登録
           </button>
         </form>
         <div style={{ textAlign: 'center' }}>
-          <span style={{ color: '#666' }}>アカウントをお持ちでないですか？ </span>
+          <span style={{ color: '#666' }}>すでにアカウントをお持ちですか？ </span>
           <button
-            onClick={onRegisterClick}
+            onClick={onLoginClick}
             style={{
               background: 'none',
               border: 'none',
@@ -118,7 +122,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick })
               font: 'inherit'
             }}
           >
-            新規登録はこちら
+            ログインはこちら
           </button>
         </div>
       </div>

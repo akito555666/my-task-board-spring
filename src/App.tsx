@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { TaskBoard } from './TaskBoard';
 import { Login } from './components/Login';
+import { Register } from './components/Register';
 
 export const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isRegistering, setIsRegistering] = useState<boolean>(false);
 
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
@@ -21,6 +23,7 @@ export const App = () => {
   const handleLogout = () => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
+    localStorage.removeItem('boardId');
     setIsAuthenticated(false);
   };
 
@@ -28,13 +31,23 @@ export const App = () => {
     return <div>Loading...</div>;
   }
 
+  if (isAuthenticated) {
+    return <TaskBoard onLogout={handleLogout} />;
+  }
+
+  if (isRegistering) {
+    return (
+      <Register
+        onRegisterSuccess={() => setIsRegistering(false)}
+        onLoginClick={() => setIsRegistering(false)}
+      />
+    );
+  }
+
   return (
-    <>
-      {isAuthenticated ? (
-        <TaskBoard onLogout={handleLogout} />
-      ) : (
-        <Login onLoginSuccess={handleLoginSuccess} />
-      )}
-    </>
+    <Login
+      onLoginSuccess={handleLoginSuccess}
+      onRegisterClick={() => setIsRegistering(true)}
+    />
   );
 };
