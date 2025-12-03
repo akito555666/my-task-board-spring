@@ -7,19 +7,14 @@ interface TaskListProps {
   tasks: Task[];
   openModal: (task?: Task) => void;
   onStatusChange: (taskId: string, newStatus: Task['status_name']) => void;
+  onReorderTasks: (newTasks: Task[]) => void;
 }
 
-const STATUSES: Task['status_name'][] = ['to-do', 'in-progress', 'completed', 'wont-do'];
+export const TaskList: React.FC<TaskListProps> = ({ tasks, openModal, onStatusChange, onReorderTasks }) => {
+  const [draggedTaskId, setDraggedTaskId] = React.useState<string | null>(null);
 
-const STATUS_LABELS: Record<string, string> = {
-  'to-do': 'To Do',
-  'in-progress': 'In Progress',
-  'completed': 'Completed',
-  'wont-do': "Won't Do"
-};
-
-export const TaskList: React.FC<TaskListProps> = ({ tasks, openModal, onStatusChange }) => {
   const handleDragStart = (e: React.DragEvent, taskId: string) => {
+    setDraggedTaskId(taskId);
     e.dataTransfer.setData('taskId', taskId);
     e.dataTransfer.effectAllowed = 'move';
   };
@@ -29,46 +24,61 @@ export const TaskList: React.FC<TaskListProps> = ({ tasks, openModal, onStatusCh
     e.dataTransfer.dropEffect = 'move';
   };
 
-  const handleDrop = (e: React.DragEvent, status: Task['status_name']) => {
+  const handleDrop = (e: React.DragEvent, targetTaskId?: string) => {
     e.preventDefault();
-    const taskId = e.dataTransfer.getData('taskId');
-    if (taskId) {
-      onStatusChange(taskId, status);
+    const sourceTaskId = e.dataTransfer.getData('taskId');
+    
+    if (!sourceTaskId) return;
+    if (sourceTaskId === targetTaskId) return;
+
+    const sourceIndex = tasks.findIndex(t => t.id === sourceTaskId);
+    if (sourceIndex === -1) return;
+
+    const newTasks = [...tasks];
+    const [movedTask] = newTasks.splice(sourceIndex, 1);
+
+    if (targetTaskId) {
+      const targetIndex = newTasks.findIndex(t => t.id === targetTaskId);
+      if (targetIndex !== -1) {
+        newTasks.splice(targetIndex, 0, movedTask);
+      }
+    } else {
+      newTasks.push(movedTask);
     }
+
+    onReorderTasks(newTasks);
+    setDraggedTaskId(null);
   };
 
   return (
-    <div className="task-board-columns">
-      {STATUSES.map(status => (
+    <div 
+      className="task-list-container"
+      onDragOver={handleDragOver}
+      onDrop={(e) => handleDrop(e)}
+    >
+      {tasks.map(task => (
         <div
-          key={status}
-          className="board-column"
-          onDragOver={handleDragOver}
-          onDrop={(e) => handleDrop(e, status)}
+          key={task.id}
+          draggable
+          onDragStart={(e) => handleDragStart(e, task.id)}
+          onDragOver={(e) => {
+             e.preventDefault();
+             e.stopPropagation();
+          }}
+          onDrop={(e) => {
+             e.preventDefault();
+             e.stopPropagation();
+             handleDrop(e, task.id);
+          }}
+          className={`draggable-task-wrapper ${draggedTaskId === task.id ? 'dragging' : ''}`}
         >
-          <h3 className="column-header">{STATUS_LABELS[status]}</h3>
-          <div className="column-tasks">
-            {tasks
-              .filter(task => task.status_name === status)
-              .map(task => (
-                <div
-                  key={task.id}
-                  draggable
-                  onDragStart={(e) => handleDragStart(e, task.id)}
-                  className="draggable-task-wrapper"
-                >
-                  <TaskCard
-                    task={task}
-                    onClick={() => openModal(task)}
-                  />
-                </div>
-              ))}
-            {status === 'to-do' && (
-              <AddTaskCard onClick={() => openModal()} />
-            )}
-          </div>
+          <TaskCard
+            task={task}
+            onClick={() => openModal(task)}
+          />
         </div>
       ))}
+      <AddTaskCard onClick={() => openModal()} />
     </div>
   );
 };

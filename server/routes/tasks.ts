@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { nanoid } from 'nanoid';
 import { prisma } from '../db.js';
-import { Task } from '../../src/types/index.js';
+import type { Task } from '../../src/types/index.js';
 
 const router = Router();
 

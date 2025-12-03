@@ -167,6 +167,31 @@ export const TaskBoard = (): React.ReactElement => {
     }
   };
 
+  const handleReorderTasks = async (newTasks: Task[]) => {
+    if (!board) return;
+    
+    // Optimistic update
+    setTasks(newTasks);
+
+    const taskIds = newTasks.map(t => t.id);
+
+    try {
+      const response = await fetch(`${API_URL}/boards/${board.id}/tasks/reorder`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ taskIds }),
+      });
+
+      if (!response.ok) {
+        console.error('Failed to reorder tasks');
+        await fetchBoard(board.id);
+      }
+    } catch (error) {
+      console.error('Error reordering tasks:', error);
+      await fetchBoard(board.id);
+    }
+  };
+
   if (!board) {
     return <div>Loading...</div>;
   }
@@ -174,7 +199,12 @@ export const TaskBoard = (): React.ReactElement => {
   return (
     <>
       <BoardHeader />
-      <TaskList tasks={tasks} openModal={openModal} onStatusChange={handleTaskStatusChange} />
+      <TaskList 
+        tasks={tasks} 
+        openModal={openModal} 
+        onStatusChange={handleTaskStatusChange} 
+        onReorderTasks={handleReorderTasks}
+      />
       <Modal
         isOpen={modalOpen}
         onClose={closeModal}
