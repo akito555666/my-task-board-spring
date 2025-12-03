@@ -91,7 +91,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ onLogout }): React.ReactEl
       // 新規タスク作成 - デフォルトは空文字列
       setSelectedTask({
         id: '',
-        name: 'New Task',
+        name: '新しいタスク',
         content: '',
         icon: '',
         status_name: 'to-do'
@@ -178,7 +178,8 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ onLogout }): React.ReactEl
   const handleTaskStatusChange = async (taskId: string, newStatus: Task['status_name']) => {
     if (!board) return;
 
-    // Optimistic update
+    // 楽観的UI更新 (Optimistic Update): 
+    // サーバーからのレスポンスを待たずに、まずはローカルのstateを更新してユーザーに即座にフィードバックを返す
     const updatedTasks = tasks.map(t =>
       t.id === taskId ? { ...t, status_name: newStatus } : t
     );
@@ -187,13 +188,21 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ onLogout }): React.ReactEl
     try {
       const response = await fetch(`${API_URL}/tasks/${taskId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
+        } as HeadersInit,
         body: JSON.stringify({ status_name: newStatus }),
       });
 
+      if (response.status === 401) {
+        onLogout && onLogout();
+        return;
+      }
+
       if (!response.ok) {
         console.error('Failed to update task status');
-        // Revert or fetch board on error
+        // エラーが発生した場合は、サーバーから最新のデータを再取得して整合性を保つ（ロールバック的な処理）
         await fetchBoard(board.id);
       }
     } catch (error) {
@@ -204,8 +213,8 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ onLogout }): React.ReactEl
 
   const handleReorderTasks = async (newTasks: Task[]) => {
     if (!board) return;
-    
-    // Optimistic update
+
+    // 楽観的UI更新: ドラッグ&ドロップの結果を即座に反映
     setTasks(newTasks);
 
     const taskIds = newTasks.map(t => t.id);
@@ -213,9 +222,17 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ onLogout }): React.ReactEl
     try {
       const response = await fetch(`${API_URL}/boards/${board.id}/tasks/reorder`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
+        } as HeadersInit,
         body: JSON.stringify({ taskIds }),
       });
+
+      if (response.status === 401) {
+        onLogout && onLogout();
+        return;
+      }
 
       if (!response.ok) {
         console.error('Failed to reorder tasks');
@@ -234,10 +251,10 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ onLogout }): React.ReactEl
   return (
     <>
       <BoardHeader onLogout={onLogout} />
-      <TaskList 
-        tasks={tasks} 
-        openModal={openModal} 
-        onStatusChange={handleTaskStatusChange} 
+      <TaskList
+        tasks={tasks}
+        openModal={openModal}
+        onStatusChange={handleTaskStatusChange}
         onReorderTasks={handleReorderTasks}
       />
       <Modal

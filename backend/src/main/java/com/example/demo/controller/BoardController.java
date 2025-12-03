@@ -14,12 +14,17 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
 
+import com.example.demo.repository.TaskRepository;
+
 @RestController
 @RequestMapping("/api/boards")
 public class BoardController {
 
     @Autowired
     private BoardRepository boardRepository;
+    
+    @Autowired
+    private TaskRepository taskRepository;
 
     @GetMapping("/{boardId}")
     public ResponseEntity<?> getBoard(@PathVariable String boardId) {
@@ -42,10 +47,10 @@ public class BoardController {
         board.setDescription("Tasks to keep organised");
 
         List<Task> defaultTasks = new ArrayList<>();
-        defaultTasks.add(createTask(boardId, "Task in Progress", "in-progress", "⏰", "This is a task in progress.", 0));
-        defaultTasks.add(createTask(boardId, "Task Completed", "completed", "🏋️‍♂️", "This is a completed task.", 1));
-        defaultTasks.add(createTask(boardId, "Task Won't Do", "wont-do", "☕", "This is a task that won't be done.", 2));
-        defaultTasks.add(createTask(boardId, "Task To Do", "to-do", "📚", "Work on a Challenge on devChallenges.io, learn TypeScript.", 3));
+        defaultTasks.add(createTask(boardId, "進行中のタスク", "in-progress", "⏰", "進行中のタスクです。", 0));
+        defaultTasks.add(createTask(boardId, "完了したタスク", "completed", "🏋️‍♂️", "完了したタスクです。", 1));
+        defaultTasks.add(createTask(boardId, "やらないタスク", "wont-do", "☕", "やらないタスクです。", 2));
+        defaultTasks.add(createTask(boardId, "やるべきタスク", "to-do", "📚", "devChallenges.ioのチャレンジに取り組み、TypeScriptを学びましょう。", 3));
 
         board.setTasks(defaultTasks);
         
@@ -88,5 +93,30 @@ public class BoardController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();
+    }
+
+    @PutMapping("/{boardId}/tasks/reorder")
+    public ResponseEntity<?> reorderTasks(@PathVariable String boardId, @RequestBody Map<String, List<String>> payload) {
+        List<String> taskIds = payload.get("taskIds");
+        if (taskIds == null || taskIds.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        if (!boardRepository.existsById(boardId)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        for (int i = 0; i < taskIds.size(); i++) {
+            String taskId = taskIds.get(i);
+            int order = i;
+            taskRepository.findById(taskId).ifPresent(task -> {
+                if (task.getBoardId().equals(boardId)) {
+                    task.setTaskOrder(order);
+                    taskRepository.save(task);
+                }
+            });
+        }
+
+        return ResponseEntity.ok().build();
     }
 }

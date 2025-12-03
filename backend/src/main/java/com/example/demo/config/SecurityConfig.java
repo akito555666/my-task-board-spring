@@ -31,36 +31,29 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+            // CORS設定を有効化（フロントエンドからのアクセスを許可するため）
             .cors(Customizer.withDefaults())
-            .csrf(csrf -> csrf.disable())	//Cookieでトークンを管理する場合はCSRF保護を有効にする
+            // CSRF保護を無効化（ステートレスなJWT認証では通常不要なため）
+            .csrf(csrf -> csrf.disable())
+            // セッションをステートレスに設定（サーバー側でセッションを保持しない）
             .sessionManagement(session -> 
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            // リクエストごとの認可設定
             .authorizeHttpRequests(auth -> auth
+                // 認証・登録APIは誰でもアクセス可能
                 .requestMatchers("/api/auth/**").permitAll()
+                // 管理者用APIはADMINロールが必要
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                // その他のリクエストは認証が必要
                 .anyRequest().authenticated()
             )
+            // JWT認証フィルターをUsernamePasswordAuthenticationFilterの前に実行
             .addFilterBefore(jwtAuthenticationFilter, 
                 UsernamePasswordAuthenticationFilter.class);
         
         return http.build();
     }
     
-    @Bean
-    public UserDetailsService userDetailsService() {
-        UserDetails user = User.builder()
-            .username("user")
-            .password(passwordEncoder().encode("password"))
-            .roles("USER")
-            .build();
-        UserDetails admin = User.builder()
-            .username("admin")
-            .password(passwordEncoder().encode("admin"))
-            .roles("ADMIN")
-            .build();
-        return new InMemoryUserDetailsManager(user, admin);
-    }
-
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

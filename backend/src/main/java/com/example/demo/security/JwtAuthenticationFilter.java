@@ -34,29 +34,37 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
         
+        // リクエストヘッダーからJWTトークンを取得
         String token = resolveToken(request);
         
+        // トークンが存在し、かつ有効である場合
         if (token != null && jwtTokenProvider.validateToken(token)) {
+            // トークンからユーザー名を取得
             String username = jwtTokenProvider.getUsername(token);
             
-            // UserDetailsServiceからユーザー情報を取得
+            // データベースからユーザー詳細情報をロード
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
             
+            // Spring Securityの認証トークンを作成
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
                             userDetails,
                             null,
                             userDetails.getAuthorities());
             
+            // リクエスト詳細（IPアドレスなど）を認証情報にセット
             authentication.setDetails(
                     new WebAuthenticationDetailsSource().buildDetails(request));
             
+            // SecurityContextに認証情報をセット（これでログイン状態となる）
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
         
+        // 次のフィルターへ処理を委譲
         filterChain.doFilter(request, response);
     }
     
+    // AuthorizationヘッダーからBearerトークンを抽出するヘルパーメソッド
     private String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {

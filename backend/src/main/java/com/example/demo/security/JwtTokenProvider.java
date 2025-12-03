@@ -29,19 +29,21 @@ public class JwtTokenProvider {
         this.refreshTokenValidityInMilliseconds = refreshTokenValidity;
     }
     
+    // アクセストークンの生成
     public String createAccessToken(String username, List<String> roles) {
         Date now = new Date();
         Date validity = new Date(now.getTime() + accessTokenValidityInMilliseconds);
         
         return Jwts.builder()
-                .subject(username)
-                .claim("roles", roles)
-                .issuedAt(now)
-                .expiration(validity)
-                .signWith(secretKey)
+                .subject(username) // ユーザー名をSubjectに設定
+                .claim("roles", roles) // ロール情報をクレームとして追加
+                .issuedAt(now) // 発行日時
+                .expiration(validity) // 有効期限
+                .signWith(secretKey) // 秘密鍵で署名
                 .compact();
     }
     
+    // リフレッシュトークンの生成（有効期限が長い）
     public String createRefreshToken(String username) {
         Date now = new Date();
         Date validity = new Date(now.getTime() + refreshTokenValidityInMilliseconds);
@@ -54,6 +56,7 @@ public class JwtTokenProvider {
                 .compact();
     }
     
+    // トークンからユーザー名を取得
     public String getUsername(String token) {
         return Jwts.parser()
                 .verifyWith(secretKey)
@@ -63,6 +66,7 @@ public class JwtTokenProvider {
                 .getSubject();
     }
     
+    // トークンの有効性検証（署名、有効期限など）
     public boolean validateToken(String token) {
         try {
             Jwts.parser()
@@ -71,6 +75,7 @@ public class JwtTokenProvider {
                     .parseSignedClaims(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
+            // 署名不正、期限切れ、形式エラーなどの場合はfalseを返す
             return false;
         }
     }
