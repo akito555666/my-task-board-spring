@@ -30,10 +30,10 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick })
         localStorage.setItem('refreshToken', data.refreshToken);
         onLoginSuccess();
       } else {
-        setError('Login failed. Please check your credentials.');
+        setError('ログインに失敗しました。ユーザー名とパスワードを確認してください。');
       }
     } catch (err) {
-      setError('An error occurred. Please try again.');
+      setError('エラーが発生しました。もう一度お試しください。');
       console.error(err);
     }
   };
@@ -54,11 +54,11 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick })
         width: '100%',
         maxWidth: '400px'
       }}>
-        <h2 style={{ marginBottom: '1.5rem', textAlign: 'center' }}>Login</h2>
+        <h2 style={{ marginBottom: '1.5rem', textAlign: 'center' }}>ログイン</h2>
         {error && <div style={{ color: 'red', marginBottom: '1rem', textAlign: 'center' }}>{error}</div>}
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.5rem' }}>Username</label>
+            <label style={{ display: 'block', marginBottom: '0.5rem' }}>ユーザー名</label>
             <input
               type="text"
               value={username}
@@ -73,7 +73,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick })
             />
           </div>
           <div style={{ marginBottom: '1.5rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.5rem' }}>Password</label>
+            <label style={{ display: 'block', marginBottom: '0.5rem' }}>パスワード</label>
             <input
               type="password"
               value={password}

@@ -27,16 +27,16 @@ export const Register: React.FC<RegisterProps> = ({ onRegisterSuccess, onLoginCl
       });
 
       if (response.ok) {
-        setSuccessMessage('Registration successful! You can now login.');
+        setSuccessMessage('登録が完了しました！ログインしてください');
         setTimeout(() => {
           onRegisterSuccess();
         }, 2000);
       } else {
         const data = await response.text();
-        setError(data || 'Registration failed.');
+        setError(data || '登録に失敗しました。');
       }
     } catch (err) {
-      setError('An error occurred. Please try again.');
+      setError('エラーが発生しました。もう一度お試しください。');
       console.error(err);
     }
   };
@@ -57,12 +57,12 @@ export const Register: React.FC<RegisterProps> = ({ onRegisterSuccess, onLoginCl
         width: '100%',
         maxWidth: '400px'
       }}>
-        <h2 style={{ marginBottom: '1.5rem', textAlign: 'center' }}>Register</h2>
+        <h2 style={{ marginBottom: '1.5rem', textAlign: 'center' }}>新規登録</h2>
         {error && <div style={{ color: 'red', marginBottom: '1rem', textAlign: 'center' }}>{error}</div>}
         {successMessage && <div style={{ color: 'green', marginBottom: '1rem', textAlign: 'center' }}>{successMessage}</div>}
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.5rem' }}>Username</label>
+            <label style={{ display: 'block', marginBottom: '0.5rem' }}>ユーザー名</label>
             <input
               type="text"
               value={username}
@@ -77,7 +77,7 @@ export const Register: React.FC<RegisterProps> = ({ onRegisterSuccess, onLoginCl
             />
           </div>
           <div style={{ marginBottom: '1.5rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.5rem' }}>Password</label>
+            <label style={{ display: 'block', marginBottom: '0.5rem' }}>パスワード</label>
             <input
               type="password"
               value={password}
@@ -105,7 +105,7 @@ export const Register: React.FC<RegisterProps> = ({ onRegisterSuccess, onLoginCl
               marginBottom: '1rem'
             }}
           >
-            Register
+            新規登録
           </button>
         </form>
         <div style={{ textAlign: 'center' }}>

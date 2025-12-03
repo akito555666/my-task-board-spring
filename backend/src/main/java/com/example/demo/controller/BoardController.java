@@ -2,10 +2,16 @@ package com.example.demo.controller;
 
 import com.example.demo.entity.Board;
 import com.example.demo.entity.Task;
+import com.example.demo.entity.User;
 import com.example.demo.repository.BoardRepository;
+import com.example.demo.repository.TaskRepository;
+import com.example.demo.repository.UserRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,8 +19,6 @@ import java.util.UUID;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
-
-import com.example.demo.repository.TaskRepository;
 
 @RestController
 @RequestMapping("/api/boards")
@@ -25,6 +29,9 @@ public class BoardController {
     
     @Autowired
     private TaskRepository taskRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @GetMapping("/{boardId}")
     public ResponseEntity<?> getBoard(@PathVariable String boardId) {
@@ -39,12 +46,19 @@ public class BoardController {
     }
 
     @PostMapping
-    public ResponseEntity<Board> createBoard() {
+    public ResponseEntity<Board> createBoard(@AuthenticationPrincipal UserDetails userDetails) {
         String boardId = UUID.randomUUID().toString();
         Board board = new Board();
         board.setId(boardId);
-        board.setName("My Task Board");
-        board.setDescription("Tasks to keep organised");
+        board.setName("マイタスクボード");
+        board.setDescription("タスクを整理するためのボード");
+
+        if (userDetails != null) {
+            User user = userRepository.findByUsername(userDetails.getUsername()).orElse(null);
+            if (user != null) {
+                board.setUser(user);
+            }
+        }
 
         List<Task> defaultTasks = new ArrayList<>();
         defaultTasks.add(createTask(boardId, "進行中のタスク", "in-progress", "⏰", "進行中のタスクです。", 0));
