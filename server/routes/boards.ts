@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { nanoid } from 'nanoid';
-import { prisma } from '../db';
-import { Board, Task } from '../../src/types';
+import { prisma } from '../db.js';
+import type { Board, Task } from '../../src/types/index.js';
 
 const router = Router();
 
@@ -33,9 +33,9 @@ router.get('/:boardId', async (req, res) => {
     }));
 
     res.json({ board, tasks: tasksFormatted });
-  } catch (err) {
+  } catch (err: any) {
     console.error(err);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: err.message || 'Internal server error' });
   }
 });
 
@@ -95,9 +95,9 @@ router.post('/', async (req, res) => {
     };
 
     res.status(201).json(newBoard);
-  } catch (err) {
+  } catch (err: any) {
     console.error(err);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: err.message || 'Internal server error' });
   }
 });
 
@@ -122,6 +122,33 @@ router.put('/:boardId', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// PUT /api/boards/:boardId/tasks/reorder
+router.put('/:boardId/tasks/reorder', async (req, res) => {
+  const { boardId } = req.params;
+  const { taskIds } = req.body;
+
+  if (!Array.isArray(taskIds)) {
+    return res.status(400).json({ message: 'taskIds must be an array' });
+  }
+
+  try {
+    // トランザクションで一括更新
+    await prisma.$transaction(
+      taskIds.map((taskId, index) => 
+        prisma.task.update({
+          where: { id: taskId, boardId: boardId },
+          data: { taskOrder: index }
+        })
+      )
+    );
+
+    res.status(200).json({ message: 'Tasks reordered' });
+  } catch (err: any) {
+    console.error(err);
+    res.status(500).json({ message: err.message || 'Internal server error' });
   }
 });
 

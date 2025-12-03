@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { nanoid } from 'nanoid';
-import { prisma } from '../db';
-import { Task } from '../../src/types';
+import { prisma } from '../db.js';
+import type { Task } from '../../src/types/index.js';
 
 const router = Router();
 
@@ -42,9 +42,9 @@ router.post('/', async (req, res) => {
     });
 
     res.status(201).json(newTask);
-  } catch (err) {
+  } catch (err: any) {
     console.error(err);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: err.message || 'Internal server error' });
   }
 });
 
@@ -79,9 +79,9 @@ router.put('/:taskId', async (req, res) => {
       icon: updatedTask.icon, 
       status_name: updatedTask.statusName
     });
-  } catch (err) {
+  } catch (err: any) {
     console.error(err);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: err.message || 'Internal server error' });
   }
 });
 

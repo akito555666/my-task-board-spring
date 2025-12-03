@@ -175,6 +175,58 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ onLogout }): React.ReactEl
     closeModal();
   };
 
+  const handleTaskStatusChange = async (taskId: string, newStatus: Task['status_name']) => {
+    if (!board) return;
+
+    // Optimistic update
+    const updatedTasks = tasks.map(t =>
+      t.id === taskId ? { ...t, status_name: newStatus } : t
+    );
+    setTasks(updatedTasks);
+
+    try {
+      const response = await fetch(`${API_URL}/tasks/${taskId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status_name: newStatus }),
+      });
+
+      if (!response.ok) {
+        console.error('Failed to update task status');
+        // Revert or fetch board on error
+        await fetchBoard(board.id);
+      }
+    } catch (error) {
+      console.error('Error updating task status:', error);
+      await fetchBoard(board.id);
+    }
+  };
+
+  const handleReorderTasks = async (newTasks: Task[]) => {
+    if (!board) return;
+    
+    // Optimistic update
+    setTasks(newTasks);
+
+    const taskIds = newTasks.map(t => t.id);
+
+    try {
+      const response = await fetch(`${API_URL}/boards/${board.id}/tasks/reorder`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ taskIds }),
+      });
+
+      if (!response.ok) {
+        console.error('Failed to reorder tasks');
+        await fetchBoard(board.id);
+      }
+    } catch (error) {
+      console.error('Error reordering tasks:', error);
+      await fetchBoard(board.id);
+    }
+  };
+
   if (!board) {
     return <div>Loading...</div>;
   }
@@ -182,7 +234,12 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ onLogout }): React.ReactEl
   return (
     <>
       <BoardHeader onLogout={onLogout} />
-      <TaskList tasks={tasks} openModal={openModal} />
+      <TaskList 
+        tasks={tasks} 
+        openModal={openModal} 
+        onStatusChange={handleTaskStatusChange} 
+        onReorderTasks={handleReorderTasks}
+      />
       <Modal
         isOpen={modalOpen}
         onClose={closeModal}

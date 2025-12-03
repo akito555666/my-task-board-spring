@@ -1,9 +1,10 @@
 {
   "name": "my-task-board-master",
   "version": "0.0.0",
+  "type": "module",
   "scripts": {
     "dev": "vite",
-    "dev:server": "node -r dotenv/config -r ts-node/register server/index.ts",
+    "dev:server": "node --loader ts-node/esm --no-warnings server/index.ts",
     "build": "vite build",
     "preview": "vite preview",
     "db:init": "ts-node -r dotenv/config server/setup-db.ts",
